@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Транспортні засоби</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .tables {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .table-block {
+            width: 30%;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #ddd;
+        }
+
+        /* Елемент, який отримав фокус клавішею Tab */
+        .table-block:focus {
+            outline: 3px solid blue;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Транспортні засоби</h1>
+
+<div class="tables">
+    <div class="table-block" tabindex="0">
+        <h2>Bike</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Властивість</th>
+                    <th>Значення</th>
+                </tr>
+            </thead>
+
+            <tbody id="bikeTable"></tbody>
+        </table>
+    </div>
+
+    <div class="table-block" tabindex="0">
+        <h2>Motorbike</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Властивість</th>
+                    <th>Значення</th>
+                </tr>
+            </thead>
+
+            <tbody id="motorbikeTable"></tbody>
+        </table>
+    </div>
+
+    <div class="table-block" tabindex="0">
+        <h2>Car</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Властивість</th>
+                    <th>Значення</th>
+                </tr>
+            </thead>
+
+            <tbody id="carTable"></tbody>
+        </table>
+    </div>
+
+</div>
+
+
+<script>
+
+
+class Bike {
+
+    constructor(brand, type, gears, weight, color) {
+        this.brand = brand;
+        this.type = type;
+        this.gears = gears;
+        this.weight = weight;
+        this.color = color;
+    }
+
+}
+
+
+
+
+class Motorbike {
+
+    constructor(brand, engine, power, maxSpeed, fuel) {
+        this.brand = brand;
+        this.engine = engine;
+        this.power = power;
+        this.maxSpeed = maxSpeed;
+        this.fuel = fuel;
+    }
+
+}
+
+
+
+
+class Car {
+
+    constructor(brand, model, year, engine, maxSpeed, color) {
+        this.brand = brand;
+        this.model = model;
+        this.year = year;
+        this.engine = engine;
+        this.maxSpeed = maxSpeed;
+        this.color = color;
+    }
+
+}
+
+
+
+const bike = new Bike(
+    "Trek",
+    "Mountain",
+    21,
+    "12 кг",
+    "червоний"
+);
+
+const motorbike = new Motorbike(
+    "Honda",
+    "600 см³",
+    "70 к.с.",
+    "210 км/год",
+    "бензин"
+);
+
+const car = new Car(
+    "Toyota",
+    "Corolla",
+    2023,
+    "1.8 л",
+    "190 км/год",
+    "білий"
+);
+
+
+
+function fillTable(object, tableId) {
+
+    const table = document.getElementById(tableId);
+
+    for (let property in object) {
+
+        const row = document.createElement("tr");
+
+        const propertyCell = document.createElement("td");
+        propertyCell.textContent = property;
+
+        const valueCell = document.createElement("td");
+        valueCell.textContent = object[property];
+
+        row.appendChild(propertyCell);
+        row.appendChild(valueCell);
+
+        table.appendChild(row);
+    }
+}
+
+
+
+
+fillTable(bike, "bikeTable");
+fillTable(motorbike, "motorbikeTable");
+fillTable(car, "carTable");
+
+</script>
+
+</body>
+</html>
