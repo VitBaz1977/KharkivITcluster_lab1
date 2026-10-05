@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Транспортні засоби</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+        }
+        .tables {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .table-block {
+            width: 32%;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+       }
+        h2 {
+            text-align: center;
+            cursor: pointer;
+            color: #333;
+        }
+        h2:hover {
+            color: blue;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th,td {
+            border: 1px solid black;
+            padding: 7px;
+            text-align: center;
+        }
+        th {
+            background-color: #ddd;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+             background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-content {
+            background-color: white;
+            width: 400px;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px
+                        rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #555;
+        }
+        .close:hover {
+            color: red;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input {
+            padding: 8px;
+            font-size: 15px;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+        form button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        form button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<h1>Транспортні засоби</h1>
+<div class="tables">
+    <div class="table-block">
+        <h2 onclick="openPopup('bikePopup')"> Bike</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Марка</th>
+                    <th>Тип</th>
+                    <th>Передачі</th>
+                    <th>Маса</th>
+                    <th>Колір</th>
+                </tr>
+            </thead>
+            <tbody id="bikeTable">
+            </tbody>
+        </table>
+    </div>
+    <div class="table-block">
+        <h2 onclick="openPopup('motorbikePopup')"> Motorbike </h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Марка</th>
+                    <th>Двигун</th>
+                    <th>Потужність</th>
+                    <th>Макс. швидкість</th>
+                    <th>Паливо</th>
+                </tr>
+            </thead>
+            <tbody id="motorbikeTable">
+            </tbody>
+        </table>
+    </div>
+    <div class="table-block">
+        <h2 onclick="openPopup('carPopup')"> Car</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Марка</th>
+                    <th>Модель</th>
+                    <th>Рік</th>
+                    <th>Двигун</th>
+                    <th>Макс. швидкість</th>
+                    <th>Колір</th>
+                </tr>
+            </thead>
+            <tbody id="carTable">
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="bikePopup" class="popup">
+    <div class="popup-content">
+        <span class="close" onclick="closePopup('bikePopup')">
+            &times;
+        </span>
+        <h2>Додати Bike</h2>
+        <form id="bikeForm">
+            <label>  Марка:   </label>
+            <input type="text" id="bikeBrand" required>
+            <label>                Тип:            </label>
+            <input type="text" id="bikeType" required>
+            <label> Кількість передач: </label>
+            <input type="number" id="bikeGears" required>
+            <label> Маса:  </label>
+            <input type="text" id="bikeWeight" required>
+            <label>  Колір:       </label>
+            <input type="text" id="bikeColor" required>
+            <button type="submit"> Додати  </button>
+        </form>
+    </div>
+</div>
+<div id="motorbikePopup" class="popup">
+    <div class="popup-content">
+        <span class="close" onclick="closePopup('motorbikePopup')">
+            &times;
+        </span>
+        <h2>Додати Motorbike</h2>
+        <form id="motorbikeForm">
+            <label> Марка:  </label>
+            <input type="text" id="motorbikeBrand" required>
+            <label> Об'єм двигуна: </label>
+            <input type="text" id="motorbikeEngine" required>
+            <label> Потужність:    </label>
+            <input type="text" id="motorbikePower" required>
+            <label> Максимальна швидкість: </label>
+            <input type="text" id="motorbikeSpeed" required>
+            <label>                Тип палива:            </label>
+            <input type="text" id="motorbikeFuel"                  required>
+            <button type="submit">                Додати            </button>
+        </form>
+    </div>
+</div>
+<div id="carPopup" class="popup">
+    <div class="popup-content">
+        <span class="close" onclick="closePopup('carPopup')">
+            &times;
+        </span>
+        <h2>Додати Car</h2>
+        <form id="carForm">
+            <label>      Марка:   </label>
+            <input type="text" id="carBrand"  required>
+            <label> Модель: </label>
+            <input type="text" id="carModel" required>
+            <label> Рік випуску:    </label>
+            <input type="number" id="carYear" required>
+            <label>  Двигун:   </label>
+            <input type="text" id="carEngine"  required>
+            <label> Максимальна швидкість: </label>
+            <input type="text" id="carSpeed" required>
+            <label> Колір: </label>
+            <input type="text" id="carColor" required>
+            <button type="submit"> Додати </button>
+        </form>
+    </div>
+</div>
+<script>
+class Bike {
+    constructor(brand,type,gears,weight,color) {
+        this.brand = brand;
+        this.type = type;
+        this.gears = gears;
+        this.weight = weight;
+        this.color = color;
+    }
+}
+class Motorbike { 
+    constructor(brand,engine,power,maxSpeed,fuel) {
+        this.brand = brand;
+        this.engine = engine;
+        this.power = power;
+        this.maxSpeed = maxSpeed;
+        this.fuel = fuel;
+    }
+}
+class Car {
+    constructor(brand,model,year,engine,maxSpeed,color) {
+        this.brand = brand;
+        this.model = model;
+        this.year = year;
+        this.engine = engine;
+        this.maxSpeed = maxSpeed;
+        this.color = color;
+    }
+}
+function addRow(object, tableId) {
+    const table =document.getElementById(tableId);
+    const row = document.createElement("tr");
+    for (let property in object) {
+        const cell =document.createElement("td");
+        cell.textContent = object[property];
+        row.appendChild(cell);
+   }
+    table.appendChild(row);
+}
+const bike = new Bike("Trek","Mountain",21,"12 кг","червоний");
+const motorbike = new Motorbike("Honda","600 см","70 к.с.","210 км/год","бензин");
+const car = new Car("Toyota","Corolla", 2023,"1.8 л","190 км/год","білий");
+addRow(bike, "bikeTable");
+addRow(motorbike, "motorbikeTable");
+addRow(car, "carTable");
+function openPopup(popupId) {
+    document.getElementById(popupId)
+        .style.display = "flex";
+}
+function closePopup(popupId) {
+    document.getElementById(popupId)
+        .style.display = "none";
+}
+document
+    .getElementById("bikeForm")
+    .addEventListener(
+        "submit",
+        function(event) {
+            event.preventDefault();
+            const newBike =new Bike(
+                    document
+                        .getElementById("bikeBrand")
+                        .value,
+                    document
+                        .getElementById("bikeType")
+                        .value,
+                    document
+                        .getElementById("bikeGears")
+                        .value,
+                    document
+                        .getElementById("bikeWeight")
+                        .value,
+                    document
+                        .getElementById("bikeColor")
+                        .value
+                );
+            addRow(newBike,"bikeTable");
+            closePopup("bikePopup");
+            this.reset();
+        }
+    );
+document
+    .getElementById("motorbikeForm")
+    .addEventListener(
+        "submit",
+        function(event) {
+            event.preventDefault();
+            const newMotorbike =new Motorbike(
+                    document
+                        .getElementById("motorbikeBrand")
+                        .value,
+                    document
+                        .getElementById("motorbikeEngine")
+                        .value,
+                    document
+                        .getElementById("motorbikePower")
+                        .value,
+                    document
+                        .getElementById("motorbikeSpeed")
+                        .value,
+                    document
+                        .getElementById("motorbikeFuel")
+                        .value
+                );
+            addRow(newMotorbike,"motorbikeTable");
+            closePopup("motorbikePopup");
+            this.reset();
+        }
+    );
+document
+    .getElementById("carForm")
+    .addEventListener(
+        "submit",
+        function(event) {
+            event.preventDefault();
+            const newCar =new Car(
+                    document
+                        .getElementById("carBrand")
+                        .value,
+                    document
+                        .getElementById("carModel")
+                        .value,
+                    document
+                        .getElementById("carYear")
+                        .value,
+                    document
+                        .getElementById("carEngine")
+                        .value,
+                    document
+                        .getElementById("carSpeed")
+                        .value,
+                    document
+                        .getElementById("carColor")
+                        .value
+                );
+            addRow(newCar, "carTable" );
+            closePopup("carPopup");
+            this.reset();
+        }
+    );
+window.addEventListener("click",function(event) {
+        if (
+            event.target.classList
+                .contains("popup")
+        ) {
+            event.target.style.display =
+                "none";
+        }
+    }
+);
+</script>
+</body>
+</html>
