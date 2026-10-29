@@ -1,0 +1,930 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Транспортні засоби — Лабораторна робота №3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .tables {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .table-block {
+            flex: 1 1 300px;
+            min-width: 0;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        h2 {
+            text-align: center;
+            cursor: pointer;
+            color: #333;
+        }
+
+        h2:hover {
+            color: blue;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #aaa;
+            padding: 7px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #ddd;
+        }
+
+        td.editable {
+            cursor: pointer;
+        }
+
+        td.editable:hover {
+            background-color: #fff4cc;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 3px 10px;
+        }
+
+        .delete-btn:hover {
+            background-color: #b02a37;
+        }
+
+        .relation-cell {
+            font-size: 12px;
+            min-width: 100px;
+        }
+
+        .add-btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .add-btn:hover {
+            background-color: #45a049;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            z-index: 10;
+        }
+
+        .popup-content {
+            background-color: white;
+            width: 400px;
+            max-width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .close:hover {
+            color: red;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, select {
+            padding: 8px;
+            font-size: 15px;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+
+        form button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        form button.cancel-btn {
+            background-color: #777;
+        }
+
+        #editInput {
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .hint {
+            color: #555;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 13px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Транспортні засоби</h1>
+
+<div class="tables">
+    <div class="table-block">
+        <h2 onclick="openPopup('bikePopup')">Bike</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Марка</th>
+                    <th>Тип</th>
+                    <th>Передачі</th>
+                    <th>Маса</th>
+                    <th>Колір</th>
+                    <th>Зв'язок</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody id="bikeTable"></tbody>
+        </table>
+        <button class="add-btn" onclick="openPopup('bikePopup')">Додати Bike</button>
+    </div>
+
+    <div class="table-block">
+        <h2 onclick="openPopup('motorbikePopup')">Motorbike</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Марка</th>
+                    <th>Двигун</th>
+                    <th>Потужність</th>
+                    <th>Макс. швидкість</th>
+                    <th>Паливо</th>
+                    <th>Зв'язок</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody id="motorbikeTable"></tbody>
+        </table>
+        <button class="add-btn" onclick="openPopup('motorbikePopup')">Додати Motorbike</button>
+    </div>
+
+    <div class="table-block">
+        <h2 onclick="openPopup('carPopup')">Car</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Марка</th>
+                    <th>Модель</th>
+                    <th>Рік</th>
+                    <th>Двигун</th>
+                    <th>Макс. швидкість</th>
+                    <th>Колір</th>
+                    <th>Зв'язок</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody id="carTable"></tbody>
+        </table>
+        <button class="add-btn" onclick="openPopup('carPopup')">Додати Car</button>
+    </div>
+</div>
+
+<p class="hint">
+    Натисніть на значення в комірці, щоб змінити його.
+    Enter, кнопка «Зберегти» або клік поза формою зберігають зміни.
+    Escape або кнопка «Скасувати» скасовують редагування.
+    Кнопка × видаляє запис, якщо на нього не посилаються інші записи.
+</p>
+
+<p class="status" id="status"></p>
+
+<div id="bikePopup" class="popup">
+    <div class="popup-content">
+        <span class="close" onclick="closePopup('bikePopup')">&times;</span>
+        <h2>Додати Bike</h2>
+        <form id="bikeForm">
+            <label for="bikeBrand">Марка:</label>
+            <input type="text" id="bikeBrand" required>
+
+            <label for="bikeType">Тип:</label>
+            <input type="text" id="bikeType" required>
+
+            <label for="bikeGears">Кількість передач:</label>
+            <input type="number" id="bikeGears" min="1" required>
+
+            <label for="bikeWeight">Маса:</label>
+            <input type="text" id="bikeWeight" required>
+
+            <label for="bikeColor">Колір:</label>
+            <input type="text" id="bikeColor" required>
+
+            <label for="bikeRelation">Пов'язати з іншим записом:</label>
+            <select id="bikeRelation"></select>
+
+            <button type="submit">Додати</button>
+        </form>
+    </div>
+</div>
+
+<div id="motorbikePopup" class="popup">
+    <div class="popup-content">
+        <span class="close" onclick="closePopup('motorbikePopup')">&times;</span>
+        <h2>Додати Motorbike</h2>
+        <form id="motorbikeForm">
+            <label for="motorbikeBrand">Марка:</label>
+            <input type="text" id="motorbikeBrand" required>
+
+            <label for="motorbikeEngine">Об'єм двигуна:</label>
+            <input type="text" id="motorbikeEngine" required>
+
+            <label for="motorbikePower">Потужність:</label>
+            <input type="text" id="motorbikePower" required>
+
+            <label for="motorbikeSpeed">Максимальна швидкість:</label>
+            <input type="text" id="motorbikeSpeed" required>
+
+            <label for="motorbikeFuel">Тип палива:</label>
+            <input type="text" id="motorbikeFuel" required>
+
+            <label for="motorbikeRelation">Пов'язати з іншим записом:</label>
+            <select id="motorbikeRelation"></select>
+
+            <button type="submit">Додати</button>
+        </form>
+    </div>
+</div>
+
+<div id="carPopup" class="popup">
+    <div class="popup-content">
+        <span class="close" onclick="closePopup('carPopup')">&times;</span>
+        <h2>Додати Car</h2>
+        <form id="carForm">
+            <label for="carBrand">Марка:</label>
+            <input type="text" id="carBrand" required>
+
+            <label for="carModel">Модель:</label>
+            <input type="text" id="carModel" required>
+
+            <label for="carYear">Рік випуску:</label>
+            <input type="number" id="carYear" min="1886" required>
+
+            <label for="carEngine">Двигун:</label>
+            <input type="text" id="carEngine" required>
+
+            <label for="carSpeed">Максимальна швидкість:</label>
+            <input type="text" id="carSpeed" required>
+
+            <label for="carColor">Колір:</label>
+            <input type="text" id="carColor" required>
+
+            <label for="carRelation">Пов'язати з іншим записом:</label>
+            <select id="carRelation"></select>
+
+            <button type="submit">Додати</button>
+        </form>
+    </div>
+</div>
+
+<div id="editPopup" class="popup">
+    <div class="popup-content">
+        <span class="close" id="closeEdit">&times;</span>
+        <h2>Редагувати значення</h2>
+        <form id="editForm">
+            <label id="editLabel" for="editInput">Нове значення:</label>
+            <input type="text" id="editInput" required>
+            <button type="submit">Зберегти</button>
+            <button type="button" id="cancelEdit" class="cancel-btn">Скасувати</button>
+        </form>
+    </div>
+</div>
+
+<script>
+"use strict";
+
+class Bike {
+    constructor(brand, type, gears, weight, color) {
+        this.brand = brand;
+        this.type = type;
+        this.gears = gears;
+        this.weight = weight;
+        this.color = color;
+    }
+}
+
+class Motorbike {
+    constructor(brand, engine, power, maxSpeed, fuel) {
+        this.brand = brand;
+        this.engine = engine;
+        this.power = power;
+        this.maxSpeed = maxSpeed;
+        this.fuel = fuel;
+    }
+}
+
+class Car {
+    constructor(brand, model, year, engine, maxSpeed, color) {
+        this.brand = brand;
+        this.model = model;
+        this.year = year;
+        this.engine = engine;
+        this.maxSpeed = maxSpeed;
+        this.color = color;
+    }
+}
+
+const config = {
+    bike: {
+        tableId: "bikeTable",
+        popupId: "bikePopup",
+        formId: "bikeForm",
+        relationId: "bikeRelation",
+        fields: [
+            { key: "brand", label: "Марка" },
+            { key: "type", label: "Тип" },
+            { key: "gears", label: "Передачі", number: true },
+            { key: "weight", label: "Маса" },
+            { key: "color", label: "Колір" }
+        ]
+    },
+    motorbike: {
+        tableId: "motorbikeTable",
+        popupId: "motorbikePopup",
+        formId: "motorbikeForm",
+        relationId: "motorbikeRelation",
+        fields: [
+            { key: "brand", label: "Марка" },
+            { key: "engine", label: "Двигун" },
+            { key: "power", label: "Потужність" },
+            { key: "maxSpeed", label: "Макс. швидкість" },
+            { key: "fuel", label: "Паливо" }
+        ]
+    },
+    car: {
+        tableId: "carTable",
+        popupId: "carPopup",
+        formId: "carForm",
+        relationId: "carRelation",
+        fields: [
+            { key: "brand", label: "Марка" },
+            { key: "model", label: "Модель" },
+            { key: "year", label: "Рік", number: true },
+            { key: "engine", label: "Двигун" },
+            { key: "maxSpeed", label: "Макс. швидкість" },
+            { key: "color", label: "Колір" }
+        ]
+    }
+};
+
+const STORAGE_KEY = "transportLab3Data";
+let nextId = 4;
+let editing = null;
+
+function createInitialData() {
+    return {
+        bike: [{
+            id: 1,
+            object: new Bike("Trek", "Mountain", 21, "12 кг", "червоний"),
+            relatedId: null
+        }],
+        motorbike: [{
+            id: 2,
+            object: new Motorbike("Honda", "600 см³", "70 к.с.", "210 км/год", "бензин"),
+            relatedId: null
+        }],
+        car: [{
+            id: 3,
+            object: new Car("Toyota", "Corolla", 2023, "1.8 л", "190 км/год", "білий"),
+            relatedId: null
+        }]
+    };
+}
+
+function loadData() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (!saved) {
+            return createInitialData();
+        }
+
+        const parsed = JSON.parse(saved);
+
+        if (
+            !parsed.data ||
+            !Array.isArray(parsed.data.bike) ||
+            !Array.isArray(parsed.data.motorbike) ||
+            !Array.isArray(parsed.data.car)
+        ) {
+            return createInitialData();
+        }
+
+        nextId = Number(parsed.nextId) || 4;
+
+        const restored = {
+            bike: parsed.data.bike.map(item => ({
+                id: item.id,
+                relatedId: item.relatedId ?? null,
+                object: new Bike(
+                    item.object.brand,
+                    item.object.type,
+                    item.object.gears,
+                    item.object.weight,
+                    item.object.color
+                )
+            })),
+            motorbike: parsed.data.motorbike.map(item => ({
+                id: item.id,
+                relatedId: item.relatedId ?? null,
+                object: new Motorbike(
+                    item.object.brand,
+                    item.object.engine,
+                    item.object.power,
+                    item.object.maxSpeed,
+                    item.object.fuel
+                )
+            })),
+            car: parsed.data.car.map(item => ({
+                id: item.id,
+                relatedId: item.relatedId ?? null,
+                object: new Car(
+                    item.object.brand,
+                    item.object.model,
+                    item.object.year,
+                    item.object.engine,
+                    item.object.maxSpeed,
+                    item.object.color
+                )
+            }))
+        };
+
+        const ids = [
+            ...restored.bike,
+            ...restored.motorbike,
+            ...restored.car
+        ].map(item => Number(item.id));
+
+        if (ids.length > 0) {
+            nextId = Math.max(nextId, ...ids) + 1;
+        }
+
+        return restored;
+    } catch (error) {
+        nextId = 4;
+        return createInitialData();
+    }
+}
+
+let data = loadData();
+
+function saveData() {
+    try {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+                data: data,
+                nextId: nextId
+            })
+        );
+
+        document.getElementById("status").textContent =
+            "Дані збережено в браузері.";
+    } catch (error) {
+        document.getElementById("status").textContent =
+            "Не вдалося зберегти дані в браузері.";
+    }
+}
+
+function getAllRecords() {
+    const result = [];
+
+    for (const type in data) {
+        for (const record of data[type]) {
+            result.push({ type, record });
+        }
+    }
+
+    return result;
+}
+
+function findRecord(id) {
+    for (const type in data) {
+        const record = data[type].find(item => item.id === id);
+
+        if (record) {
+            return { type, record };
+        }
+    }
+
+    return null;
+}
+
+function getRecordLabel(item) {
+    return `${item.type}: ${item.record.object.brand || "Без марки"}`;
+}
+
+function updateRelationOptions() {
+    for (const type in config) {
+        const select = document.getElementById(config[type].relationId);
+        const previousValue = select.value;
+
+        select.replaceChildren();
+
+        const emptyOption = document.createElement("option");
+        emptyOption.value = "";
+        emptyOption.textContent = "Без зв'язку";
+        select.appendChild(emptyOption);
+
+        for (const item of getAllRecords()) {
+            const option = document.createElement("option");
+            option.value = String(item.record.id);
+            option.textContent = `${getRecordLabel(item)} (#${item.record.id})`;
+            select.appendChild(option);
+        }
+
+        if ([...select.options].some(option => option.value === previousValue)) {
+            select.value = previousValue;
+        }
+    }
+}
+
+function startEditing(type, id, key) {
+    if (editing) {
+        saveEdit();
+        if (editing) return;
+    }
+
+    const record = data[type].find(item => item.id === id);
+    if (!record) return;
+
+    const field = config[type].fields.find(item => item.key === key);
+    if (!field) return;
+
+    editing = { type, id, key };
+
+    document.getElementById("editLabel").textContent = `${field.label}:`;
+
+    const input = document.getElementById("editInput");
+    input.type = field.number ? "number" : "text";
+    input.value = String(record.object[key] ?? "");
+    input.removeAttribute("min");
+
+    if (key === "gears") input.min = "1";
+    if (key === "year") input.min = "1886";
+
+    document.getElementById("editPopup").style.display = "flex";
+    input.focus();
+    input.select();
+}
+
+function saveEdit() {
+    if (!editing) return;
+
+    const current = editing;
+    const input = document.getElementById("editInput");
+    const newValue = input.value.trim();
+    const record = data[current.type].find(item => item.id === current.id);
+
+    if (!record) {
+        cancelEdit();
+        return;
+    }
+
+    if (newValue === "") {
+        alert("Значення не може бути порожнім.");
+        input.focus();
+        return;
+    }
+
+    const field = config[current.type].fields.find(
+        item => item.key === current.key
+    );
+
+    if (field.number) {
+        const number = Number(newValue);
+
+        if (
+            !Number.isFinite(number) ||
+            (current.key === "gears" && number < 1) ||
+            (current.key === "year" && number < 1886)
+        ) {
+            alert("Введіть коректне числове значення.");
+            input.focus();
+            return;
+        }
+
+        record.object[current.key] = number;
+    } else {
+        record.object[current.key] = newValue;
+    }
+
+    editing = null;
+    document.getElementById("editPopup").style.display = "none";
+    saveData();
+    renderAll();
+}
+
+function cancelEdit() {
+    editing = null;
+    document.getElementById("editPopup").style.display = "none";
+}
+
+document.getElementById("editForm").addEventListener("submit", event => {
+    event.preventDefault();
+    saveEdit();
+});
+
+document.getElementById("cancelEdit").addEventListener("click", cancelEdit);
+document.getElementById("closeEdit").addEventListener("click", cancelEdit);
+
+function renderTable(type) {
+    const table = document.getElementById(config[type].tableId);
+    table.replaceChildren();
+
+    for (const record of data[type]) {
+        const row = document.createElement("tr");
+
+        for (const field of config[type].fields) {
+            const cell = document.createElement("td");
+            cell.className = "editable";
+            cell.textContent = record.object[field.key];
+            cell.title = "Натисніть, щоб редагувати";
+
+            cell.addEventListener("click", () => {
+                startEditing(type, record.id, field.key);
+            });
+
+            row.appendChild(cell);
+        }
+
+        const relationCell = document.createElement("td");
+        relationCell.className = "relation-cell";
+
+        if (record.relatedId !== null) {
+            const target = findRecord(record.relatedId);
+            relationCell.textContent = target
+                ? `${getRecordLabel(target)} (#${target.record.id})`
+                : "Запис не знайдено";
+        } else {
+            relationCell.textContent = "—";
+        }
+
+        row.appendChild(relationCell);
+
+        const actionCell = document.createElement("td");
+        const deleteButton = document.createElement("button");
+
+        deleteButton.type = "button";
+        deleteButton.className = "delete-btn";
+        deleteButton.textContent = "×";
+        deleteButton.title = "Видалити запис";
+        deleteButton.setAttribute("aria-label", "Видалити запис");
+        deleteButton.addEventListener("click", () => {
+            deleteRecord(type, record.id);
+        });
+
+        actionCell.appendChild(deleteButton);
+        row.appendChild(actionCell);
+        table.appendChild(row);
+    }
+}
+
+function renderAll() {
+    for (const type in data) {
+        renderTable(type);
+    }
+
+    updateRelationOptions();
+}
+
+function deleteRecord(type, id) {
+    const record = data[type].find(item => item.id === id);
+
+    if (!record) {
+        alert("Запис не знайдено.");
+        return;
+    }
+
+    const dependents = getAllRecords().filter(
+        item => item.record.relatedId === id
+    );
+
+    if (dependents.length > 0) {
+        const names = dependents.map(item =>
+            `${getRecordLabel(item)} (#${item.record.id})`
+        ).join("\n");
+
+        alert(
+            "Неможливо видалити запис!\n\n" +
+            "На нього посилаються інші записи:\n" +
+            names +
+            "\n\nСпочатку видаліть ці зв'язки."
+        );
+
+        return;
+    }
+
+    if (!confirm("Ви дійсно хочете видалити цей запис?")) {
+        return;
+    }
+
+    data[type] = data[type].filter(item => item.id !== id);
+    saveData();
+    renderAll();
+}
+
+function addRecord(type, object, relatedId) {
+    let numericRelatedId = null;
+
+    if (relatedId !== "") {
+        numericRelatedId = Number(relatedId);
+
+        if (!Number.isInteger(numericRelatedId) || !findRecord(numericRelatedId)) {
+            alert("Пов'язаний запис не існує.");
+            return false;
+        }
+    }
+
+    data[type].push({
+        id: nextId++,
+        object: object,
+        relatedId: numericRelatedId
+    });
+
+    saveData();
+    renderAll();
+    return true;
+}
+
+document.getElementById("bikeForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const object = new Bike(
+        document.getElementById("bikeBrand").value.trim(),
+        document.getElementById("bikeType").value.trim(),
+        Number(document.getElementById("bikeGears").value),
+        document.getElementById("bikeWeight").value.trim(),
+        document.getElementById("bikeColor").value.trim()
+    );
+
+    if (addRecord("bike", object, document.getElementById("bikeRelation").value)) {
+        closePopup("bikePopup");
+        this.reset();
+    }
+});
+
+document.getElementById("motorbikeForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const object = new Motorbike(
+        document.getElementById("motorbikeBrand").value.trim(),
+        document.getElementById("motorbikeEngine").value.trim(),
+        document.getElementById("motorbikePower").value.trim(),
+        document.getElementById("motorbikeSpeed").value.trim(),
+        document.getElementById("motorbikeFuel").value.trim()
+    );
+
+    if (addRecord("motorbike", object, document.getElementById("motorbikeRelation").value)) {
+        closePopup("motorbikePopup");
+        this.reset();
+    }
+});
+
+document.getElementById("carForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const object = new Car(
+        document.getElementById("carBrand").value.trim(),
+        document.getElementById("carModel").value.trim(),
+        Number(document.getElementById("carYear").value),
+        document.getElementById("carEngine").value.trim(),
+        document.getElementById("carSpeed").value.trim(),
+        document.getElementById("carColor").value.trim()
+    );
+
+    if (addRecord("car", object, document.getElementById("carRelation").value)) {
+        closePopup("carPopup");
+        this.reset();
+    }
+});
+
+function openPopup(popupId) {
+    updateRelationOptions();
+    document.getElementById(popupId).style.display = "flex";
+}
+
+function closePopup(popupId) {
+    document.getElementById(popupId).style.display = "none";
+}
+
+document.getElementById("editInput").addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        event.preventDefault();
+        cancelEdit();
+    }
+
+    if (event.key === "Enter") {
+        event.preventDefault();
+        saveEdit();
+    }
+});
+
+window.addEventListener("click", event => {
+    if (event.target.classList.contains("popup")) {
+        if (event.target.id === "editPopup") {
+            saveEdit();
+        } else {
+            closePopup(event.target.id);
+        }
+        return;
+    }
+
+    if (
+        editing &&
+        !event.target.closest("#editPopup .popup-content") &&
+        !event.target.closest("td.editable")
+    ) {
+        saveEdit();
+    }
+});
+
+window.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        if (editing) {
+            cancelEdit();
+        }
+
+        document.querySelectorAll(".popup").forEach(popup => {
+            if (popup.id !== "editPopup") {
+                popup.style.display = "none";
+            }
+        });
+    }
+});
+
+renderAll();
+</script>
+
+</body>
+</html>
