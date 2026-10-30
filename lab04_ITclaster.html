@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабораторна робота №4</title>
+</head>
+<body>
+    <h1>Лабораторна робота №4</h1>
+
+    <h2>Навчальні дисципліни</h2>
+
+    <form id="disciplineForm">
+        <input
+            type="text"
+            id="disciplineName"
+            placeholder="Назва дисципліни"
+            required
+        >
+        <button type="submit">Додати дисципліну</button>
+    </form>
+
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Назва дисципліни</th>
+                <th>Дія</th>
+            </tr>
+        </thead>
+        <tbody id="disciplineTable"></tbody>
+    </table>
+
+    <h2>Студенти</h2>
+
+    <form id="studentForm">
+        <input
+            type="text"
+            id="studentName"
+            placeholder="ПІБ студента"
+            required
+        >
+
+        <select id="studentDiscipline" required>
+            <option value="">Оберіть дисципліну</option>
+        </select>
+
+        <button type="submit">Додати студента</button>
+    </form>
+
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>ПІБ студента</th>
+                <th>Дисципліна</th>
+                <th>Дія</th>
+            </tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+    </table>
+
+    <script>
+        const STORAGE_KEY = "lab4_data";
+
+        let data = loadData();
+
+        function loadData() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+
+                if (saved !== null) {
+                    const parsed = JSON.parse(saved);
+
+                    if (
+                        parsed &&
+                        Array.isArray(parsed.disciplines) &&
+                        Array.isArray(parsed.students)
+                    ) {
+                        return parsed;
+                    }
+                }
+            } catch (error) {
+                console.error("Помилка читання даних:", error);
+            }
+
+            return {
+                disciplines: [],
+                students: []
+            };
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(
+                    STORAGE_KEY,
+                    JSON.stringify(data)
+                );
+            } catch (error) {
+                alert("Не вдалося зберегти дані.");
+                console.error(error);
+            }
+        }
+
+        function render() {
+            renderDisciplines();
+            renderDisciplineOptions();
+            renderStudents();
+        }
+
+        function renderDisciplines() {
+            const table = document.getElementById("disciplineTable");
+            table.replaceChildren();
+
+            data.disciplines.forEach((discipline, index) => {
+                const row = document.createElement("tr");
+
+                addCell(row, index + 1);
+                addCell(row, discipline.name);
+
+                const cell = document.createElement("td");
+                const button = document.createElement("button");
+
+                button.textContent = "Видалити";
+                button.type = "button";
+
+                button.addEventListener("click", () => {
+                    const used = data.students.some(
+                        student =>
+                            student.disciplineId === discipline.id
+                    );
+
+                    if (used) {
+                        alert(
+                            "Спочатку видаліть студентів, " +
+                            "які навчаються на цій дисципліні."
+                        );
+                        return;
+                    }
+
+                    data.disciplines = data.disciplines.filter(
+                        item => item.id !== discipline.id
+                    );
+
+                    saveData();
+                    render();
+                });
+
+                cell.append(button);
+                row.append(cell);
+                table.append(row);
+            });
+        }
+
+        function renderDisciplineOptions() {
+            const select = document.getElementById("studentDiscipline");
+            const previousValue = select.value;
+
+            select.replaceChildren();
+
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "Оберіть дисципліну";
+
+            select.append(placeholder);
+
+            data.disciplines.forEach(discipline => {
+                const option = document.createElement("option");
+
+                option.value = discipline.id;
+                option.textContent = discipline.name;
+
+                select.append(option);
+            });
+
+            if (data.disciplines.some(
+                discipline => discipline.id === previousValue
+            )) {
+                select.value = previousValue;
+            }
+        }
+
+        function renderStudents() {
+            const table = document.getElementById("studentTable");
+            table.replaceChildren();
+
+            data.students.forEach((student, index) => {
+                const row = document.createElement("tr");
+
+                const discipline = data.disciplines.find(
+                    item => item.id === student.disciplineId
+                );
+
+                addCell(row, index + 1);
+                addCell(row, student.name);
+                addCell(row, discipline ? discipline.name : "Не вказано");
+
+                const cell = document.createElement("td");
+                const button = document.createElement("button");
+
+                button.textContent = "Видалити";
+                button.type = "button";
+
+                button.addEventListener("click", () => {
+                    data.students = data.students.filter(
+                        item => item.id !== student.id
+                    );
+
+                    saveData();
+                    render();
+                });
+
+                cell.append(button);
+                row.append(cell);
+                table.append(row);
+            });
+        }
+
+        function addCell(row, value) {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.append(cell);
+        }
+
+        document.getElementById("disciplineForm")
+            .addEventListener("submit", event => {
+                event.preventDefault();
+
+                const input = document.getElementById("disciplineName");
+                const name = input.value.trim();
+
+                if (!name) {
+                    alert("Введіть назву дисципліни.");
+                    return;
+                }
+
+                const exists = data.disciplines.some(
+                    discipline =>
+                        discipline.name.toLowerCase() === name.toLowerCase()
+                );
+
+                if (exists) {
+                    alert("Така дисципліна вже існує.");
+                    return;
+                }
+
+                data.disciplines.push({
+                    id: crypto.randomUUID(),
+                    name: name
+                });
+
+                saveData();
+                render();
+
+                input.value = "";
+            });
+
+        document.getElementById("studentForm")
+            .addEventListener("submit", event => {
+                event.preventDefault();
+
+                const name = document.getElementById("studentName")
+                    .value.trim();
+
+                const disciplineId = document.getElementById(
+                    "studentDiscipline"
+                ).value;
+
+                if (!name) {
+                    alert("Введіть ПІБ студента.");
+                    return;
+                }
+
+                if (!data.disciplines.some(
+                    discipline => discipline.id === disciplineId
+                )) {
+                    alert("Оберіть дисципліну зі списку.");
+                    return;
+                }
+
+                data.students.push({
+                    id: crypto.randomUUID(),
+                    name: name,
+                    disciplineId: disciplineId
+                });
+
+                saveData();
+                render();
+
+                document.getElementById("studentName").value = "";
+            });
+
+        window.addEventListener("storage", event => {
+            if (event.key === STORAGE_KEY) {
+                data = loadData();
+                render();
+            }
+        });
+
+        render();
+    </script>
+</body>
+</html>
